@@ -5,16 +5,21 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import mukokoTheme from '../theme';
 import Logo from './Logo';
 
+// Check if running on web platform
+const isWeb = Platform.OS === 'web';
+
 export default function AppHeader() {
   const [menuVisible, setMenuVisible] = useState(false);
-  const [isTabletOrDesktop, setIsTabletOrDesktop] = useState(Platform.OS === 'web');
+  // On web, always show header icons (no bottom tab bar on web)
+  // On native mobile, hide icons (use bottom tab bar) unless tablet/desktop (768px+)
+  const [showHeaderActions, setShowHeaderActions] = useState(isWeb);
 
   useEffect(() => {
     const updateLayout = () => {
       const { width } = Dimensions.get('window');
-      // On web, always show header icons (no bottom tab bar)
-      // On native, show icons only on tablet/desktop (768px+)
-      setIsTabletOrDesktop(Platform.OS === 'web' || width >= 768);
+      // On web: always show icons
+      // On native: show only if tablet/desktop width
+      setShowHeaderActions(isWeb || width >= 768);
     };
 
     updateLayout();
@@ -79,8 +84,8 @@ export default function AppHeader() {
     return (
       <>
         <View style={styles.header}>
-          {/* Hamburger Menu Button - Tablet/Desktop Only */}
-          {isTabletOrDesktop && (
+          {/* Hamburger Menu Button - Web/Tablet/Desktop Only */}
+          {showHeaderActions && (
             <IconButton
               icon="menu"
               onPress={() => setMenuVisible(!menuVisible)}
@@ -102,8 +107,8 @@ export default function AppHeader() {
           {/* Spacer - pushes logo to center on mobile, actions to right on desktop */}
           <View style={styles.spacer} />
 
-          {/* Action buttons - Only show on Tablet/Desktop (mobile uses bottom tab bar) */}
-          {isTabletOrDesktop && (
+          {/* Action buttons - Show on Web/Tablet/Desktop (mobile uses bottom tab bar) */}
+          {showHeaderActions && (
             <View style={styles.actions}>
               {/* Trending/Insights Icon - highlighted in brand color */}
               <IconButton
@@ -147,8 +152,8 @@ export default function AppHeader() {
           )}
         </View>
 
-        {/* Dropdown Menu for Tablet/Desktop */}
-        {isTabletOrDesktop && (
+        {/* Dropdown Menu for Web/Tablet/Desktop */}
+        {showHeaderActions && (
           <Modal
             visible={menuVisible}
             transparent
