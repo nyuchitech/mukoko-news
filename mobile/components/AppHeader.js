@@ -98,50 +98,52 @@ export default function AppHeader() {
             <Logo size="sm" showText={true} theme="dark" />
           </TouchableOpacity>
 
-          {/* Spacer for desktop layout */}
-          {isTabletOrDesktop && <View style={styles.spacer} />}
+          {/* Spacer - pushes logo to center on mobile, actions to right on desktop */}
+          <View style={styles.spacer} />
 
-          {/* Action buttons */}
-          <View style={styles.actions}>
-            {/* Trending/Insights Icon - highlighted in brand color */}
-            <IconButton
-              icon="chart-line"
-              onPress={handleTrendingPress}
-              iconColor={mukokoTheme.colors.primary}
-              size={22}
-              style={styles.actionButton}
-            />
+          {/* Action buttons - Only show on Tablet/Desktop (mobile uses bottom tab bar) */}
+          {isTabletOrDesktop && (
+            <View style={styles.actions}>
+              {/* Trending/Insights Icon - highlighted in brand color */}
+              <IconButton
+                icon="chart-line"
+                onPress={handleTrendingPress}
+                iconColor={mukokoTheme.colors.primary}
+                size={22}
+                style={styles.actionButton}
+              />
 
-            {/* Search Icon */}
-            <IconButton
-              icon="magnify"
-              onPress={handleSearchPress}
-              iconColor={mukokoTheme.colors.onSurface}
-              size={22}
-              style={styles.actionButton}
-            />
+              {/* Search Icon */}
+              <IconButton
+                icon="magnify"
+                onPress={handleSearchPress}
+                iconColor={mukokoTheme.colors.onSurface}
+                size={22}
+                style={styles.actionButton}
+              />
 
-            {/* Theme Toggle (visual placeholder - future implementation) */}
-            <IconButton
-              icon="white-balance-sunny"
-              onPress={() => {
-                // Theme toggle will be implemented with ThemeContext
-                console.log('Theme toggle - feature coming soon');
-              }}
-              iconColor={mukokoTheme.colors.onSurfaceVariant}
-              size={22}
-              style={styles.actionButton}
-            />
+              {/* Theme Toggle (visual placeholder - future implementation) */}
+              <IconButton
+                icon="white-balance-sunny"
+                onPress={() => {
+                  // Theme toggle will be implemented with ThemeContext
+                  console.log('Theme toggle - feature coming soon');
+                }}
+                iconColor={mukokoTheme.colors.onSurfaceVariant}
+                size={22}
+                style={styles.actionButton}
+              />
 
-            {/* Profile/Login Icon */}
-            <IconButton
-              icon="account-circle-outline"
-              onPress={handleProfilePress}
-              iconColor={mukokoTheme.colors.onSurface}
-              size={22}
-              style={styles.actionButton}
-            />
-          </View>
+              {/* Profile/Login Icon */}
+              <IconButton
+                icon="account-circle-outline"
+                onPress={handleProfilePress}
+                iconColor={mukokoTheme.colors.onSurface}
+                size={22}
+                style={styles.actionButton}
+              />
+            </View>
+          )}
         </View>
 
         {/* Dropdown Menu for Tablet/Desktop */}
