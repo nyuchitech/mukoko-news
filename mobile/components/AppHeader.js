@@ -8,11 +8,15 @@ import Logo from './Logo';
 // Check if running on web platform
 const isWeb = Platform.OS === 'web';
 
+// Log platform for debugging
+console.log('[AppHeader] Platform.OS:', Platform.OS, 'isWeb:', isWeb);
+
 export default function AppHeader() {
   const [menuVisible, setMenuVisible] = useState(false);
   // On web, always show header icons (no bottom tab bar on web)
   // On native mobile, hide icons (use bottom tab bar) unless tablet/desktop (768px+)
-  const [showHeaderActions, setShowHeaderActions] = useState(isWeb);
+  // Default to true on web to ensure icons show immediately
+  const [showHeaderActions, setShowHeaderActions] = useState(true);
 
   useEffect(() => {
     const updateLayout = () => {
