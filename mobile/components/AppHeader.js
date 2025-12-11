@@ -7,13 +7,14 @@ import Logo from './Logo';
 
 export default function AppHeader() {
   const [menuVisible, setMenuVisible] = useState(false);
-  const [isTabletOrDesktop, setIsTabletOrDesktop] = useState(false);
+  const [isTabletOrDesktop, setIsTabletOrDesktop] = useState(Platform.OS === 'web');
 
   useEffect(() => {
     const updateLayout = () => {
       const { width } = Dimensions.get('window');
-      // Tablet breakpoint: 768px, Desktop: 1024px
-      setIsTabletOrDesktop(width >= 768);
+      // On web, always show header icons (no bottom tab bar)
+      // On native, show icons only on tablet/desktop (768px+)
+      setIsTabletOrDesktop(Platform.OS === 'web' || width >= 768);
     };
 
     updateLayout();
