@@ -152,13 +152,25 @@ describe('ArticleService', () => {
   });
 
   describe('extractContentFromHTML', () => {
+    // Uses multiple passes to handle malformed/nested tags safely
     const stripHTML = (html: string): string => {
-      return html
-        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-        .replace(/<[^>]+>/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
+      let result = html;
+
+      // Remove script tags (handles spaces in closing tag like </script >)
+      result = result.replace(/<script\b[^<]*(?:(?!<\/script\s*>)<[^<]*)*<\/script\s*>/gi, '');
+
+      // Remove style tags (handles spaces in closing tag like </style >)
+      result = result.replace(/<style\b[^<]*(?:(?!<\/style\s*>)<[^<]*)*<\/style\s*>/gi, '');
+
+      // Remove all remaining HTML tags with multiple passes for nested content
+      let previousLength = 0;
+      while (result.length !== previousLength) {
+        previousLength = result.length;
+        result = result.replace(/<[^>]+>/g, ' ');
+      }
+
+      // Normalize whitespace and trim
+      return result.replace(/\s+/g, ' ').trim();
     };
 
     it('should strip HTML tags from content', () => {
@@ -324,15 +336,16 @@ describe('ArticleService', () => {
   });
 
   describe('cleanText', () => {
+    // IMPORTANT: Decode &amp; LAST to avoid double-unescaping (e.g., &amp;lt; -> &lt; -> <)
     const cleanText = (text: string): string => {
       return text
         .replace(/\s+/g, ' ')
-        .replace(/&amp;/g, '&')
         .replace(/&lt;/g, '<')
         .replace(/&gt;/g, '>')
         .replace(/&quot;/g, '"')
         .replace(/&#039;/g, "'")
         .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')  // Decode &amp; LAST to prevent double-unescaping
         .trim();
     };
 

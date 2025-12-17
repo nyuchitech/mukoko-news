@@ -609,13 +609,25 @@ export class ArticleService {
   }
 
   // Strip HTML tags from text
+  // Uses multiple passes to handle malformed/nested tags safely
   stripHTML(html) {
-    return html
-      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '') // Remove scripts
-      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '') // Remove styles
-      .replace(/<[^>]+>/g, ' ') // Remove HTML tags
-      .replace(/\s+/g, ' ') // Normalize whitespace
-      .trim()
+    let result = html;
+
+    // Remove script tags (handles spaces in closing tag like </script >)
+    result = result.replace(/<script\b[^<]*(?:(?!<\/script\s*>)<[^<]*)*<\/script\s*>/gi, '');
+
+    // Remove style tags (handles spaces in closing tag like </style >)
+    result = result.replace(/<style\b[^<]*(?:(?!<\/style\s*>)<[^<]*)*<\/style\s*>/gi, '');
+
+    // Remove all remaining HTML tags with multiple passes for nested content
+    let previousLength = 0;
+    while (result.length !== previousLength) {
+      previousLength = result.length;
+      result = result.replace(/<[^>]+>/g, ' ');
+    }
+
+    // Normalize whitespace and trim
+    return result.replace(/\s+/g, ' ').trim();
   }
 
   // Extract main image from HTML
@@ -767,15 +779,16 @@ export class ArticleService {
   }
 
   // Clean text content
+  // IMPORTANT: Decode &amp; LAST to avoid double-unescaping (e.g., &amp;lt; -> &lt; -> <)
   cleanText(text) {
     return text
       .replace(/\s+/g, ' ')
-      .replace(/&amp;/g, '&')
       .replace(/&lt;/g, '<')
       .replace(/&gt;/g, '>')
       .replace(/&quot;/g, '"')
       .replace(/&#039;/g, "'")
       .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')  // Decode &amp; LAST to prevent double-unescaping
       .trim()
   }
 
