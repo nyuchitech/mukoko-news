@@ -152,22 +152,29 @@ describe('ArticleService', () => {
   });
 
   describe('extractContentFromHTML', () => {
-    // Uses multiple passes to handle malformed/nested tags safely
+    // Uses loop-based removal to handle nested/malformed tags safely
     const stripHTML = (html: string): string => {
       let result = html;
+      let previousLength;
 
-      // Remove script tags (handles spaces in closing tag like </script >)
-      result = result.replace(/<script\b[^<]*(?:(?!<\/script\s*>)<[^<]*)*<\/script\s*>/gi, '');
+      // Loop to remove script tags until none remain (handles nested scripts)
+      // Pattern matches any whitespace (spaces, tabs, newlines) in closing tag
+      do {
+        previousLength = result.length;
+        result = result.replace(/<script\b[^>]*>[\s\S]*?<\/script[\s\S]*?>/gi, '');
+      } while (result.length !== previousLength);
 
-      // Remove style tags (handles spaces in closing tag like </style >)
-      result = result.replace(/<style\b[^<]*(?:(?!<\/style\s*>)<[^<]*)*<\/style\s*>/gi, '');
+      // Loop to remove style tags until none remain (handles nested styles)
+      do {
+        previousLength = result.length;
+        result = result.replace(/<style\b[^>]*>[\s\S]*?<\/style[\s\S]*?>/gi, '');
+      } while (result.length !== previousLength);
 
       // Remove all remaining HTML tags with multiple passes for nested content
-      let previousLength = 0;
-      while (result.length !== previousLength) {
+      do {
         previousLength = result.length;
         result = result.replace(/<[^>]+>/g, ' ');
-      }
+      } while (result.length !== previousLength);
 
       // Normalize whitespace and trim
       return result.replace(/\s+/g, ' ').trim();
