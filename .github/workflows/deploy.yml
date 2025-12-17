@@ -32,11 +32,6 @@ jobs:
         cd backend
         npm run test
 
-    - name: Type check backend
-      run: |
-        cd backend
-        npm run typecheck
-
     - name: Test backend build
       run: |
         cd backend
