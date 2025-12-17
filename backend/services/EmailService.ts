@@ -322,17 +322,17 @@ Visit https://news.mukoko.com to start reading!
   /**
    * Convert HTML to plain text (basic)
    * Since we always provide explicit text versions for our emails,
-   * this is only a fallback. We strip all tags safely.
+   * this is only a fallback. Uses loop-based removal for safety.
    */
   private htmlToText(html: string): string {
-    // Simply strip all HTML tags - we don't need to parse content
-    // between script/style tags since we control the input HTML
-    // and always provide explicit plain text versions
-    const text = html
-      .replace(/<[^>]*>/g, ' ')  // Remove all HTML tags
-      .replace(/\s+/g, ' ')       // Normalize whitespace
-      .trim();
+    // Use loop-based removal to handle any nested/malformed tags
+    let text = html;
+    let previousLength;
+    do {
+      previousLength = text.length;
+      text = text.replace(/<[^>]*>/g, ' ');
+    } while (text.length !== previousLength);
 
-    return text;
+    return text.replace(/\s+/g, ' ').trim();
   }
 }
