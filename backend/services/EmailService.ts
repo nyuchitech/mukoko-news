@@ -63,7 +63,7 @@ export class EmailService {
         return { success: false, error: `Email send failed: ${response.status}` };
       }
 
-      const result = await response.json();
+      const result = await response.json() as { id?: string };
       console.log('[EMAIL] Sent successfully:', result.id);
       return { success: true, messageId: result.id };
     } catch (error: any) {

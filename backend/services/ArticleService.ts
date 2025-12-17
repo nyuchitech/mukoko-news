@@ -1,10 +1,41 @@
-// worker/services/ArticleService.js
+// worker/services/ArticleService.ts
 // Service for managing articles in D1 database with slugs and content scraping
 
+interface ScraperConfig {
+  contentSelectors: string[];
+  excludeSelectors: string[];
+  maxContentLength: number;
+  timeout: number;
+}
+
+interface ArticleFilters {
+  category?: string;
+  source?: string;
+  limit?: number;
+  offset?: number;
+  orderBy?: string;
+  orderDirection?: string;
+  status?: string;
+  search?: string;
+}
+
+interface ViewData {
+  userId?: string;
+  sessionId?: string;
+  ipAddress?: string;
+  userAgent?: string;
+  referrer?: string;
+  readingTime?: number;
+  scrollDepth?: number;
+}
+
 export class ArticleService {
-  constructor(articlesDb) {
-    this.db = articlesDb
-    
+  private db: D1Database;
+  private scraperConfig: ScraperConfig;
+
+  constructor(articlesDb: D1Database) {
+    this.db = articlesDb;
+
     // Web scraping configuration
     this.scraperConfig = {
       // Common content selectors for news websites
@@ -44,9 +75,9 @@ export class ArticleService {
   }
 
   // Generate URL-friendly slug from title
-  generateSlug(title) {
-    if (!title) return null
-    
+  generateSlug(title: string | null): string | null {
+    if (!title) return null;
+
     return title
       .toLowerCase()
       .replace(/[^\w\s-]/g, '') // Remove special characters
@@ -54,11 +85,11 @@ export class ArticleService {
       .replace(/-+/g, '-')      // Replace multiple hyphens with single
       .trim()                   // Remove leading/trailing spaces
       .substring(0, 80)         // Limit length
-      .replace(/-$/, '')        // Remove trailing hyphen
+      .replace(/-$/, '');       // Remove trailing hyphen
   }
 
   // Ensure slug is unique by appending number if needed
-  async ensureUniqueSlug(baseSlug, excludeId = null) {
+  async ensureUniqueSlug(baseSlug: string | null, excludeId: number | null = null): Promise<string | null> {
     if (!baseSlug) return null
 
     let slug = baseSlug
@@ -254,7 +285,16 @@ export class ArticleService {
   }
 
   // Get articles with pagination
-  async getArticles(options = {}) {
+  async getArticles(options: {
+    category?: string | null;
+    source?: string | null;
+    limit?: number;
+    offset?: number;
+    orderBy?: string;
+    orderDirection?: string;
+    status?: string;
+    search?: string | null;
+  } = {}) {
     try {
       const {
         category = null,
@@ -268,7 +308,7 @@ export class ArticleService {
       } = options
 
       let query = 'SELECT * FROM articles WHERE status = ?'
-      const params = [status]
+      const params: (string | number)[] = [status]
 
       if (category) {
         query += ' AND category = ?'
@@ -354,7 +394,15 @@ export class ArticleService {
   }
 
   // Track article analytics
-  async trackArticleView(articleId, context = {}) {
+  async trackArticleView(articleId: string | number, context: {
+    userId?: string | null;
+    sessionId?: string | null;
+    ipAddress?: string | null;
+    userAgent?: string | null;
+    referrer?: string | null;
+    readingTime?: number | null;
+    scrollDepth?: number | null;
+  } = {}) {
     try {
       if (!articleId) return
 

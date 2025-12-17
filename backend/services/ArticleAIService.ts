@@ -290,11 +290,12 @@ Return JSON format:
           const parsed = JSON.parse(aiResponse.response)
           if (parsed.keywords && Array.isArray(parsed.keywords)) {
             // Match extracted keywords with database keywords to get categories
+            const dbKeywords = existingKeywords.results as Array<{ keyword: string; category_id: string }>
             for (const kw of parsed.keywords) {
-              const dbKeyword = existingKeywords.results.find((k: any) => 
+              const dbKeyword = dbKeywords.find((k) =>
                 k.keyword.toLowerCase() === kw.keyword.toLowerCase()
               )
-              
+
               if (dbKeyword && kw.confidence > 0.5) {
                 extractedKeywords.push({
                   keyword: kw.keyword,
@@ -312,8 +313,8 @@ Return JSON format:
       // Fallback: simple keyword matching if AI failed
       if (extractedKeywords.length === 0) {
         const contentLower = (title + ' ' + content).toLowerCase()
-        
-        for (const kw of existingKeywords.results.slice(0, 20)) {
+
+        for (const kw of existingKeywords.results.slice(0, 20) as Array<{ keyword: string; category_id: string }>) {
           if (contentLower.includes(kw.keyword.toLowerCase())) {
             extractedKeywords.push({
               keyword: kw.keyword,
